@@ -10,10 +10,11 @@ const inputPopup = document.getElementById("inputPopup");
 const saveBtn = document.getElementById("saveBtn");
 let userLibrary = [];
 if (localStorage.length && !localStorage.getItem("debug")) {
-  for (let i = 0; i < localStorage.length; i++) {
+  let i = 0;
+  while (userLibrary.length != localStorage.length) {
+    i++;
     if (localStorage.getItem("Book" + i) != null) {
-      userLibrary[i] = JSON.parse(localStorage.getItem("Book" + i));
-      console.log(userLibrary[i]);
+      userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
       createBookCard();
     }
   }
