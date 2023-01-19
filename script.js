@@ -78,7 +78,21 @@ function createBookCard(i) {
   isRead.classList.add(userLibrary[index].isRead ? "read" : "notRead");
   isRead.textContent = userLibrary[index].isRead ? "Read" : "Not read yet";
   remove.classList.add("remove");
-  isRead.addEventListener("click", toggleRead);
+  isRead.addEventListener("click", function () {
+    if (this.textContent === "Read") {
+      this.textContent = "Not read yet";
+      this.classList.add("notRead");
+      this.classList.remove("read");
+      userLibrary[index].isRead = false;
+      localStorage.setItem("Book" + i, JSON.stringify(userLibrary[index]));
+    } else {
+      this.textContent = "Read";
+      this.classList.add("read");
+      this.classList.remove("notRead");
+      userLibrary[index].isRead = true;
+      localStorage.setItem("Book" + i, JSON.stringify(userLibrary[index]));
+    }
+  });
   remove.textContent = "Remove";
   for (let element of elements) {
     card.appendChild(element);
@@ -97,6 +111,7 @@ function toggleRead() {
     this.textContent = "Not read yet";
     this.classList.add("notRead");
     this.classList.remove("read");
+    userLibrary[index].isRead = false;
   } else {
     this.textContent = "Read";
     this.classList.add("read");
