@@ -74,8 +74,9 @@ function createBookCard() {
   title.classList.add("output");
   author.classList.add("output");
   pages.classList.add("output");
-  isRead.classList.add(isRead ? "read" : "notRead");
+  isRead.classList.add(userLibrary[index].isRead ? "read" : "notRead");
   isRead.textContent = userLibrary[index].isRead ? "Read" : "Not read yet";
+  remove.classList.add("remove");
   isRead.addEventListener("click", toggleRead);
   remove.textContent = "Remove";
   for (let element of elements) {
