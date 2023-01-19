@@ -12,20 +12,20 @@ let userLibrary = [];
 if (localStorage.length && !localStorage.getItem("debug")) {
   let i = 0;
   while (userLibrary.length != localStorage.length) {
-    i++;
     if (localStorage.getItem("Book" + i) != null) {
       userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
       createBookCard();
     }
+    i++;
   }
 } else if (localStorage.getItem("debug")) {
   let i = 0;
   while (userLibrary.length != localStorage.length - 1) {
-    i++;
     if (localStorage.getItem("Book" + i) != null) {
       userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-      createBookCard();
+      createBookCard(i);
     }
+    i++;
   }
 }
 function BookCreate(name, author, pages, isRead) {
@@ -45,8 +45,9 @@ function endInput() {
   );
   userLibrary.push(Book);
   let i = userLibrary.length - 1;
-  localStorage.setItem("Book" + Number(i), JSON.stringify(Book));
-  createBookCard();
+  while (localStorage.getItem("Book" + i)) i++;
+  localStorage.setItem("Book" + i, JSON.stringify(Book));
+  createBookCard(i);
   titleInput.value = "";
   authorInput.value = "";
   pagesInput.value = "";
@@ -56,7 +57,8 @@ function closeInput() {
   inputPopup.classList.remove("show");
   overlay.classList.remove("show");
 }
-function createBookCard() {
+function createBookCard(i) {
+  let index = userLibrary.length - 1;
   let elements = [
     (title = document.createElement("div")),
     (author = document.createElement("div")),
@@ -65,9 +67,8 @@ function createBookCard() {
     (remove = document.createElement("button")),
   ];
   card = document.createElement("div");
-  card.setAttribute("data-index-number", userLibrary.length - 1);
+  card.setAttribute("data-index-number", index);
   card.classList.add("card");
-  let index = card.getAttribute("data-index-number");
   title.textContent = "'" + userLibrary[index].name + "'";
   author.textContent = userLibrary[index].author;
   pages.textContent = userLibrary[index].pages;
@@ -83,7 +84,7 @@ function createBookCard() {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
-    localStorage.removeItem("Book" + index);
+    localStorage.removeItem("Book" + i);
     userLibrary.splice(index, 1);
     books.removeChild(
       document.querySelector("[data-index-number='" + index + "']")
