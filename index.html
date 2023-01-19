@@ -9,17 +9,22 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="header">Books</div>
+    <div id="overlay"></div>
+    <div id="header">Library</div>
     <div id="center">
       <div id="addBook">
         <button id="addBtn">Add book</button>
       </div>
       <div id="books">
         <div id="inputPopup">
+          Add new book
           <input type="text" class="bookTitle" placeholder="Title" />
           <input type="text" class="bookAuthor" placeholder="Author" />
           <input type="number" class="bookPages" placeholder="Pages" />
-          <input type="checkbox" class="bookIsRead" />
+          <div id="bookIsRead">
+            Have you read it?
+            <input type="checkbox" class="bookIsRead" />
+          </div>
           <button id="saveBtn">SAVE</button>
           <button id="cancelBtn">CANCEL</button>
         </div>

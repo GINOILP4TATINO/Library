@@ -1,3 +1,4 @@
+const overlay = document.getElementById("overlay");
 const books = document.getElementById("books");
 const cancelBtn = document.getElementById("cancelBtn");
 const readBook = document.querySelector(".bookIsRead");
@@ -8,11 +9,30 @@ const addBtn = document.getElementById("addBtn");
 const inputPopup = document.getElementById("inputPopup");
 const saveBtn = document.getElementById("saveBtn");
 let userLibrary = [];
+if (localStorage.length && !localStorage.getItem("debug")) {
+  for (let i = 0; i < localStorage.length; i++) {
+    if (localStorage.getItem("Book" + i) != null) {
+      userLibrary[i] = JSON.parse(localStorage.getItem("Book" + i));
+      console.log(userLibrary[i]);
+      createBookCard();
+    }
+  }
+} else if (localStorage.getItem("debug")) {
+  let i = 0;
+  while (userLibrary.length != localStorage.length - 1) {
+    i++;
+    if (localStorage.getItem("Book" + i) != null) {
+      userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
+      createBookCard();
+    }
+  }
+}
 function BookCreate(name, author, pages, isRead) {
   return { name, author, pages, isRead };
 }
 function getInput() {
   inputPopup.classList.add("show");
+  overlay.classList.add("show");
 }
 function endInput() {
   closeInput();
@@ -23,6 +43,8 @@ function endInput() {
     readBook.checked
   );
   userLibrary.push(Book);
+  let i = userLibrary.length - 1;
+  localStorage.setItem("Book" + Number(i), JSON.stringify(Book));
   createBookCard();
   titleInput.value = "";
   authorInput.value = "";
@@ -31,6 +53,7 @@ function endInput() {
 }
 function closeInput() {
   inputPopup.classList.remove("show");
+  overlay.classList.remove("show");
 }
 function createBookCard() {
   let elements = [
@@ -44,9 +67,13 @@ function createBookCard() {
   card.setAttribute("data-index-number", userLibrary.length - 1);
   card.classList.add("card");
   let index = card.getAttribute("data-index-number");
-  title.textContent = userLibrary[index].name;
+  title.textContent = "'" + userLibrary[index].name + "'";
   author.textContent = userLibrary[index].author;
   pages.textContent = userLibrary[index].pages;
+  title.classList.add("output");
+  author.classList.add("output");
+  pages.classList.add("output");
+  isRead.classList.add(isRead ? "read" : "notRead");
   isRead.textContent = userLibrary[index].isRead ? "Read" : "Not read yet";
   isRead.addEventListener("click", toggleRead);
   remove.textContent = "Remove";
@@ -54,7 +81,7 @@ function createBookCard() {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
-    console.log(index);
+    localStorage.removeItem("Book" + index);
     userLibrary.splice(index, 1);
     books.removeChild(
       document.querySelector("[data-index-number='" + index + "']")
@@ -63,9 +90,15 @@ function createBookCard() {
   books.appendChild(card);
 }
 function toggleRead() {
-  this.textContent === "Read"
-    ? (this.textContent = "Not read yet")
-    : (this.textContent = "Read");
+  if (this.textContent === "Read") {
+    this.textContent = "Not read yet";
+    this.classList.add("notRead");
+    this.classList.remove("read");
+  } else {
+    this.textContent = "Read";
+    this.classList.add("read");
+    this.classList.remove("notRead");
+  }
 }
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
