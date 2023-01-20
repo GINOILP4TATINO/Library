@@ -104,7 +104,7 @@ function createBookCard(i) {
     localStorage.removeItem("Book" + userLibrary[index].index);
     userLibrary.splice(index, 1, null);
     books.removeChild(
-      document.querySelector("[data-index-number='" + _index + "']")
+      document.querySelector("[data-index-number='" + index + "']")
     );
   });
   books.appendChild(card);
