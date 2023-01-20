@@ -8,13 +8,14 @@ const titleInput = document.querySelector(".bookTitle");
 const addBtn = document.getElementById("addBtn");
 const inputPopup = document.getElementById("inputPopup");
 const saveBtn = document.getElementById("saveBtn");
+let deleteCounter = 0;
 let userLibrary = [];
 if (localStorage.length && !localStorage.getItem("debug")) {
   let i = 0;
   while (userLibrary.length != localStorage.length) {
     if (localStorage.getItem("Book" + i) != null) {
       userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-      createBookCard();
+      createBookCard(i);
     }
     i++;
   }
@@ -28,8 +29,8 @@ if (localStorage.length && !localStorage.getItem("debug")) {
     i++;
   }
 }
-function BookCreate(name, author, pages, isRead) {
-  return { name, author, pages, isRead };
+function BookCreate(name, author, pages, isRead, index) {
+  return { name, author, pages, isRead, index };
 }
 function getInput() {
   inputPopup.classList.add("show");
@@ -37,11 +38,13 @@ function getInput() {
 }
 function endInput() {
   closeInput();
+  let index = userLibrary.length;
   let Book = BookCreate(
     titleInput.value,
     authorInput.value,
     pagesInput.value,
-    readBook.checked
+    readBook.checked,
+    index
   );
   userLibrary.push(Book);
   let i = userLibrary.length - 1;
@@ -98,25 +101,13 @@ function createBookCard(i) {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
-    localStorage.removeItem("Book" + i);
-    userLibrary.splice(index, 1);
+    localStorage.removeItem("Book" + userLibrary[index].index);
+    userLibrary.splice(index, 1, null);
     books.removeChild(
-      document.querySelector("[data-index-number='" + index + "']")
+      document.querySelector("[data-index-number='" + _index + "']")
     );
   });
   books.appendChild(card);
-}
-function toggleRead() {
-  if (this.textContent === "Read") {
-    this.textContent = "Not read yet";
-    this.classList.add("notRead");
-    this.classList.remove("read");
-    userLibrary[index].isRead = false;
-  } else {
-    this.textContent = "Read";
-    this.classList.add("read");
-    this.classList.remove("notRead");
-  }
 }
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
