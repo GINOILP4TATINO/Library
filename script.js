@@ -101,10 +101,11 @@ function createBookCard(i) {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
+    _index = index;
     localStorage.removeItem("Book" + userLibrary[index].index);
     userLibrary.splice(index, 1, null);
     books.removeChild(
-      document.querySelector("[data-index-number='" + index + "']")
+      document.querySelector("[data-index-number='" + _index + "']")
     );
   });
   books.appendChild(card);
