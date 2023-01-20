@@ -8,13 +8,14 @@ const titleInput = document.querySelector(".bookTitle");
 const addBtn = document.getElementById("addBtn");
 const inputPopup = document.getElementById("inputPopup");
 const saveBtn = document.getElementById("saveBtn");
+let deleteCounter = 0;
 let userLibrary = [];
 if (localStorage.length && !localStorage.getItem("debug")) {
   let i = 0;
   while (userLibrary.length != localStorage.length) {
     if (localStorage.getItem("Book" + i) != null) {
       userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-      createBookCard();
+      createBookCard(i);
     }
     i++;
   }
@@ -100,10 +101,13 @@ function createBookCard(i) {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
+    _index = index;
+    index -= deleteCounter;
+    deleteCounter++;
     localStorage.removeItem("Book" + userLibrary[index].index);
     userLibrary.splice(index, 1);
     books.removeChild(
-      document.querySelector("[data-index-number='" + index + "']")
+      document.querySelector("[data-index-number='" + _index + "']")
     );
   });
   books.appendChild(card);
