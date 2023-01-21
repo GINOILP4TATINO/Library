@@ -264,6 +264,8 @@ a:hover #name {
   height: 40px;
   background-color: rgb(200, 198, 201);
   cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: -10px;
 }
 #answer1 {
   margin-right: 20px;

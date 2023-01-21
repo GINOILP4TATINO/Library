@@ -150,27 +150,32 @@ function createBookCard(i) {
   books.appendChild(card);
 }
 function register() {
-  let logged = true;
+  logged = true;
+  if (!document.querySelector(".error")) {
+    const error = document.createElement("div");
+    error.classList.add("error");
+    registerPopup.appendChild(error);
+  }
   if (logging) {
-    if (
+    if (userName.value == "" || password.value == "") {
+      document.querySelector(".error").textContent =
+        "Must insert a username and a password";
+      logged = "missing";
+    } else if (
       userName.value != localStorage.getItem("userName") ||
       password.value != localStorage.getItem("password")
     ) {
       logged = false;
     }
-    if (logged) closeInput();
-    else if (!document.querySelector(".error")) {
-      const error = document.createElement("div");
-      error.classList.add("error");
-      registerPopup.appendChild(error);
-      error.textContent = "Username or password are wrong";
+    if (logged === true) closeInput();
+    else if (logged === false) {
+      document.querySelector(".error").textContent =
+        "Username or password are wrong";
     }
   } else {
     if (userName.value == "" || password.value == "") {
-      const error = document.createElement("div");
-      error.classList.add("error");
-      registerPopup.appendChild(error);
-      error.textContent = "Must insert a username and a password";
+      document.querySelector(".error").textContent =
+        "Must insert a username and a password";
     } else {
       closeInput();
       localStorage.setItem("userName", userName.value);
@@ -199,9 +204,10 @@ function resetPass() {
   });
   forgotPass.appendChild(answer2);
   forgotPass.classList.remove("absolute");
-  registerPopup.style.height = "360px";
+  registerPopup.style.height = "380px";
   registerPopup.style.gap = "30px";
 }
+
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
 cancelBtn.addEventListener("click", closeInput);
