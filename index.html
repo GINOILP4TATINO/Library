@@ -9,13 +9,19 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="overlay"></div>
+    <div id="overlay" class="show"></div>
     <div id="header">Library</div>
     <div id="center">
       <div id="addBook">
         <button id="addBtn">Add book</button>
       </div>
       <div id="books">
+        <div id="registerPopup" class="show">
+          <div class="text">Register</div>
+          <input id="userName" placeholder="Username" type="text" />
+          <input class="password" placeholder="Password" type="password" />
+          <button id="submitBtn">Submit</button>
+        </div>
         <div id="inputPopup">
           Add new book
           <input type="text" class="bookTitle" placeholder="Title" />

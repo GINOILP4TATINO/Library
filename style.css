@@ -45,7 +45,7 @@ body {
   font-size: 1.97rem;
   background-color: white;
   height: 400px;
-  width: 200px;
+  width: 300px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -106,9 +106,10 @@ body {
 }
 input[type="text"],
 input[type="number"] {
+  border: 0;
   height: 40px;
   border-radius: 15px;
-  background-color: rgb(231, 231, 231);
+  background-color: rgb(216, 213, 217);
 }
 #overlay {
   position: fixed;
@@ -197,4 +198,76 @@ a:hover img {
 a:hover #name {
   transform: translate(0, 0);
   opacity: 1;
+}
+#registerPopup {
+  background-color: white;
+  box-shadow: 0 0 0 2px rgb(168, 168, 168);
+  border-radius: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  gap: 50px;
+  padding: 20px;
+  font-size: 2rem;
+  transform: translate(-50%, -50%) scale(0.1);
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  height: 340px;
+  width: 300px;
+  align-items: center;
+  visibility: hidden;
+  transition: visibility 200ms cubic-bezier(0.6, -0.28, 0.74, 0.05),
+    transform 200ms cubic-bezier(0.6, -0.28, 0.74, 0.05);
+}
+#registerPopup.show {
+  visibility: visible;
+  transform: scale(1) translate(-50%, -50%);
+}
+#userName,
+.password {
+  height: 40px;
+  border-radius: 15px;
+  border: 0;
+  background-color: rgb(226, 223, 227);
+  width: 280px;
+}
+#submitBtn {
+  height: 50px;
+  width: 200px;
+  border-radius: 40px;
+  border: 0;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  background-color: #3882f6;
+}
+.error {
+  color: red;
+  font-size: 1rem;
+  position: absolute;
+  bottom: 3%;
+}
+#forgotPass {
+  color: rgb(48, 124, 255);
+  font-size: 1rem;
+}
+#forgotPass.absolute {
+  position: absolute;
+  cursor: pointer;
+  bottom: 27%;
+}
+#answer1,
+#answer2 {
+  width: 50px;
+  border-radius: 15px;
+  height: 40px;
+  background-color: rgb(200, 198, 201);
+  cursor: pointer;
+}
+#answer1 {
+  margin-right: 20px;
+}
+#answer2 {
+  margin-left: 20px;
 }

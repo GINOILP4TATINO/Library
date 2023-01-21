@@ -8,25 +8,63 @@ const titleInput = document.querySelector(".bookTitle");
 const addBtn = document.getElementById("addBtn");
 const inputPopup = document.getElementById("inputPopup");
 const saveBtn = document.getElementById("saveBtn");
-let deleteCounter = 0;
+const submitBtn = document.getElementById("submitBtn");
+const registerPopup = document.getElementById("registerPopup");
+const registerText = document.querySelector(".text");
+const userName = document.getElementById("userName");
+const password = document.querySelector(".password");
 let userLibrary = [];
-if (localStorage.length && !localStorage.getItem("debug")) {
+let logging;
+if (localStorage.getItem("userName") && localStorage.getItem("password")) {
+  logging = true;
+  registerText.textContent = "Log in";
+  const forgotPass = document.createElement("div");
+  forgotPass.classList.add("absolute");
+  forgotPass.setAttribute("id", "forgotPass");
+  forgotPass.textContent = "Forgot password?";
+  forgotPass.addEventListener("click", resetPass);
+  registerPopup.insertBefore(forgotPass, submitBtn);
+} else {
+  logging = false;
+  localStorage.clear();
+}
+if (localStorage.length && !localStorage.getItem("debug") && logging) {
   let i = 0;
-  while (userLibrary.length != localStorage.length) {
-    if (localStorage.getItem("Book" + i) != null) {
-      userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-      createBookCard(i);
+  if (logging) {
+    while (userLibrary.length != localStorage.length - 2) {
+      if (localStorage.getItem("Book" + i) != null) {
+        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
+        createBookCard(i);
+      }
+      i++;
     }
-    i++;
+  } else {
+    while (userLibrary.length != localStorage.length) {
+      if (localStorage.getItem("Book" + i) != null) {
+        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
+        createBookCard(i);
+      }
+      i++;
+    }
   }
-} else if (localStorage.getItem("debug")) {
+} else if (localStorage.getItem("debug") && logging) {
   let i = 0;
-  while (userLibrary.length != localStorage.length - 1) {
-    if (localStorage.getItem("Book" + i) != null) {
-      userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-      createBookCard(i);
+  if (logging) {
+    while (userLibrary.length != localStorage.length - 3) {
+      if (localStorage.getItem("Book" + i) != null) {
+        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
+        createBookCard(i);
+      }
+      i++;
     }
-    i++;
+  } else {
+    while (userLibrary.length != localStorage.length - 1) {
+      if (localStorage.getItem("Book" + i) != null) {
+        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
+        createBookCard(i);
+      }
+      i++;
+    }
   }
 }
 function BookCreate(name, author, pages, isRead, index) {
@@ -57,6 +95,7 @@ function endInput() {
   readBook.checked = false;
 }
 function closeInput() {
+  registerPopup.classList.remove("show");
   inputPopup.classList.remove("show");
   overlay.classList.remove("show");
 }
@@ -110,6 +149,60 @@ function createBookCard(i) {
   });
   books.appendChild(card);
 }
+function register() {
+  let logged = true;
+  if (logging) {
+    if (
+      userName.value != localStorage.getItem("userName") ||
+      password.value != localStorage.getItem("password")
+    ) {
+      logged = false;
+    }
+    if (logged) closeInput();
+    else if (!document.querySelector(".error")) {
+      const error = document.createElement("div");
+      error.classList.add("error");
+      registerPopup.appendChild(error);
+      error.textContent = "Username or password are wrong";
+    }
+  } else {
+    if (userName.value == "" || password.value == "") {
+      const error = document.createElement("div");
+      error.classList.add("error");
+      registerPopup.appendChild(error);
+      error.textContent = "Must insert a username and a password";
+    } else {
+      closeInput();
+      localStorage.setItem("userName", userName.value);
+      localStorage.setItem("password", password.value);
+    }
+  }
+}
+function resetPass() {
+  forgotPass.textContent = "Are you sure?";
+  const question = document.createElement("div");
+  question.textContent = "In this way you will lose everything";
+  forgotPass.appendChild(question);
+  const answer1 = document.createElement("button");
+  answer1.textContent = "Yes";
+  answer1.setAttribute("id", "answer1");
+  answer1.addEventListener("click", () => {
+    localStorage.clear();
+    window.location.reload();
+  });
+  forgotPass.appendChild(answer1);
+  const answer2 = document.createElement("button");
+  answer2.textContent = "No";
+  answer2.setAttribute("id", "answer2");
+  answer2.addEventListener("click", () => {
+    window.location.reload();
+  });
+  forgotPass.appendChild(answer2);
+  forgotPass.classList.remove("absolute");
+  registerPopup.style.height = "360px";
+  registerPopup.style.gap = "30px";
+}
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
 cancelBtn.addEventListener("click", closeInput);
+submitBtn.addEventListener("click", register);
