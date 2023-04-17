@@ -16,12 +16,14 @@
         <button id="addBtn">Add book</button>
       </div>
       <div id="books">
-        <div id="registerPopup" class="show">
-          <div class="text">Sign up</div>
-          <input id="userName" placeholder="Username" type="text" />
-          <input class="password" placeholder="Password" type="password" />
-          <button id="submitBtn">Submit</button>
-        </div>
+        <form>
+          <div id="registerPopup" class="show">
+            <div class="text">Sign up</div>
+            <input id="userName" placeholder="Username" type="text" required/>
+            <input class="password" placeholder="Password" type="password" required/>
+            <button id="submitBtn" type="submit">Submit</button>
+          </div>
+        <form>
         <div id="inputPopup">
           Add new book
           <input type="text" class="bookTitle" placeholder="Title" />

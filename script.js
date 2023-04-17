@@ -13,8 +13,11 @@ const registerPopup = document.getElementById("registerPopup");
 const registerText = document.querySelector(".text");
 const userName = document.getElementById("userName");
 const password = document.querySelector(".password");
+const form = document.querySelector("form");
+
 let userLibrary = [];
 let logging;
+
 if (localStorage.getItem("userName") && localStorage.getItem("password")) {
   logging = true;
   registerText.textContent = "Log in";
@@ -28,44 +31,13 @@ if (localStorage.getItem("userName") && localStorage.getItem("password")) {
   logging = false;
   localStorage.clear();
 }
-if (localStorage.length && !localStorage.getItem("debug") && logging) {
-  let i = 0;
-  if (logging) {
-    while (userLibrary.length != localStorage.length - 2) {
-      if (localStorage.getItem("Book" + i) != null) {
-        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-        createBookCard(i);
-      }
-      i++;
-    }
-  } else {
-    while (userLibrary.length != localStorage.length) {
-      if (localStorage.getItem("Book" + i) != null) {
-        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-        createBookCard(i);
-      }
-      i++;
-    }
-  }
-} else if (localStorage.getItem("debug") && logging) {
-  let i = 0;
-  if (logging) {
-    while (userLibrary.length != localStorage.length - 3) {
-      if (localStorage.getItem("Book" + i) != null) {
-        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-        createBookCard(i);
-      }
-      i++;
-    }
-  } else {
-    while (userLibrary.length != localStorage.length - 1) {
-      if (localStorage.getItem("Book" + i) != null) {
-        userLibrary.push(JSON.parse(localStorage.getItem("Book" + i)));
-        createBookCard(i);
-      }
-      i++;
-    }
-  }
+if (localStorage.getItem("userLibrary") && logging) {
+  userLibrary = JSON.parse(localStorage.getItem("userLibrary"));
+  for (let i = 0; i < userLibrary.length; i++) createBookCard(i);
+}
+if (localStorage.getItem("newUserLibrary") && logging) {
+  userLibrary = JSON.parse(localStorage.getItem("newUserLibrary"));
+  for (let i = 0; i < userLibrary.length; i++) createBookCard(i);
 }
 function BookCreate(name, author, pages, isRead, index) {
   return { name, author, pages, isRead, index };
@@ -86,8 +58,7 @@ function endInput() {
   );
   userLibrary.push(Book);
   let i = userLibrary.length - 1;
-  while (localStorage.getItem("Book" + i)) i++;
-  localStorage.setItem("Book" + i, JSON.stringify(Book));
+  localStorage.setItem("userLibrary", JSON.stringify(userLibrary));
   createBookCard(i);
   titleInput.value = "";
   authorInput.value = "";
@@ -100,7 +71,7 @@ function closeInput() {
   overlay.classList.remove("show");
 }
 function createBookCard(i) {
-  let index = userLibrary.length - 1;
+  let index = i;
   let elements = [
     (title = document.createElement("div")),
     (author = document.createElement("div")),
@@ -126,13 +97,13 @@ function createBookCard(i) {
       this.classList.add("notRead");
       this.classList.remove("read");
       userLibrary[index].isRead = false;
-      localStorage.setItem("Book" + i, JSON.stringify(userLibrary[index]));
+      localStorage.setItem("userLibrary", JSON.stringify(userLibrary));
     } else {
       this.textContent = "Read";
       this.classList.add("read");
       this.classList.remove("notRead");
       userLibrary[index].isRead = true;
-      localStorage.setItem("Book" + i, JSON.stringify(userLibrary[index]));
+      localStorage.setItem("userLibrary", JSON.stringify(userLibrary));
     }
   });
   remove.textContent = "Remove";
@@ -141,8 +112,12 @@ function createBookCard(i) {
   }
   remove.addEventListener("click", () => {
     let _index = index;
-    localStorage.removeItem("Book" + userLibrary[index].index);
     userLibrary.splice(index, 1, null);
+    let newUserLibrary = [];
+    for (let i = 0; i < userLibrary.length; i++) {
+      if (!(userLibrary[i] === null)) newUserLibrary.push(userLibrary[i]);
+    }
+    localStorage.setItem("userLibrary", JSON.stringify(newUserLibrary));
     books.removeChild(
       document.querySelector("[data-index-number='" + _index + "']")
     );
@@ -207,8 +182,24 @@ function resetPass() {
   registerPopup.style.height = "380px";
   registerPopup.style.gap = "30px";
 }
-
+function subFor(e) {
+  e.preventDefault();
+  fetch("https://api.apispreadsheets.com/data/IPLF9qDIw7lVDXur/", {
+    method: "POST",
+    body: JSON.stringify({
+      data: { userName: userName.value, Password: password.value },
+    }),
+  }).then((res) => {
+    if (res.status === 201) {
+      // SUCCESS
+    } else {
+      // ERROR
+    }
+  });
+}
+function updateData() {}
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
 cancelBtn.addEventListener("click", closeInput);
 submitBtn.addEventListener("click", register);
+form.addEventListener("submit", subFor);
