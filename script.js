@@ -168,7 +168,7 @@ function checkCredentials(data) {
 //   registerPopup.style.gap = "30px";
 // }
 function subFor() {
-  register();
+  if (userName.value !== "" && password.value !== "") register();
 }
 function updateData(a) {
   if (!a) {
