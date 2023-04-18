@@ -1,3 +1,5 @@
+const url = "https://api.apispreadsheets.com/data/1tgfgPm3tA5AHOou/";
+
 const overlay = document.getElementById("overlay");
 const books = document.getElementById("books");
 const cancelBtn = document.getElementById("cancelBtn");
@@ -13,32 +15,17 @@ const registerPopup = document.getElementById("registerPopup");
 const registerText = document.querySelector(".text");
 const userName = document.getElementById("userName");
 const password = document.querySelector(".password");
-const form = document.querySelector("form");
+const form = document.getElementById("registerForm");
 
+let logged = true;
 let userLibrary = [];
-let logging;
+const forgotPass = document.createElement("div");
+forgotPass.classList.add("absolute");
+forgotPass.setAttribute("id", "forgotPass");
+forgotPass.textContent = ""; //Forgot password?
+// forgotPass.addEventListener("click", resetPass);
+registerPopup.insertBefore(forgotPass, submitBtn);
 
-if (localStorage.getItem("userName") && localStorage.getItem("password")) {
-  logging = true;
-  registerText.textContent = "Log in";
-  const forgotPass = document.createElement("div");
-  forgotPass.classList.add("absolute");
-  forgotPass.setAttribute("id", "forgotPass");
-  forgotPass.textContent = "Forgot password?";
-  forgotPass.addEventListener("click", resetPass);
-  registerPopup.insertBefore(forgotPass, submitBtn);
-} else {
-  logging = false;
-  localStorage.clear();
-}
-if (localStorage.getItem("userLibrary") && logging) {
-  userLibrary = JSON.parse(localStorage.getItem("userLibrary"));
-  for (let i = 0; i < userLibrary.length; i++) createBookCard(i);
-}
-if (localStorage.getItem("newUserLibrary") && logging) {
-  userLibrary = JSON.parse(localStorage.getItem("newUserLibrary"));
-  for (let i = 0; i < userLibrary.length; i++) createBookCard(i);
-}
 function BookCreate(name, author, pages, isRead, index) {
   return { name, author, pages, isRead, index };
 }
@@ -58,7 +45,7 @@ function endInput() {
   );
   userLibrary.push(Book);
   let i = userLibrary.length - 1;
-  localStorage.setItem("userLibrary", JSON.stringify(userLibrary));
+  updateData(false);
   createBookCard(i);
   titleInput.value = "";
   authorInput.value = "";
@@ -97,13 +84,13 @@ function createBookCard(i) {
       this.classList.add("notRead");
       this.classList.remove("read");
       userLibrary[index].isRead = false;
-      localStorage.setItem("userLibrary", JSON.stringify(userLibrary));
+      updateData(false);
     } else {
       this.textContent = "Read";
       this.classList.add("read");
       this.classList.remove("notRead");
       userLibrary[index].isRead = true;
-      localStorage.setItem("userLibrary", JSON.stringify(userLibrary));
+      updateData(false);
     }
   });
   remove.textContent = "Remove";
@@ -113,11 +100,9 @@ function createBookCard(i) {
   remove.addEventListener("click", () => {
     let _index = index;
     userLibrary.splice(index, 1, null);
-    let newUserLibrary = [];
-    for (let i = 0; i < userLibrary.length; i++) {
-      if (!(userLibrary[i] === null)) newUserLibrary.push(userLibrary[i]);
-    }
-    localStorage.setItem("userLibrary", JSON.stringify(newUserLibrary));
+    let newUserLibrary = userLibrary.filter((x) => x != null);
+    userLibrary = newUserLibrary;
+    updateData(false);
     books.removeChild(
       document.querySelector("[data-index-number='" + _index + "']")
     );
@@ -125,81 +110,106 @@ function createBookCard(i) {
   books.appendChild(card);
 }
 function register() {
-  logged = true;
+  closeInput();
   if (!document.querySelector(".error")) {
     const error = document.createElement("div");
     error.classList.add("error");
     registerPopup.appendChild(error);
   }
-  if (logging) {
-    if (userName.value == "" || password.value == "") {
-      document.querySelector(".error").textContent =
-        "Must insert a username and a password";
-      logged = "missing";
-    } else if (
-      userName.value != localStorage.getItem("userName") ||
-      password.value != localStorage.getItem("password")
-    ) {
-      logged = false;
-    }
-    if (logged === true) closeInput();
-    else if (logged === false) {
-      document.querySelector(".error").textContent =
-        "Username or password are wrong";
-    }
-  } else {
-    if (userName.value == "" || password.value == "") {
-      document.querySelector(".error").textContent =
-        "Must insert a username and a password";
+  fetch(url).then((res) => {
+    if (res.status === 200) {
+      res
+        .json()
+        .then((data) => {
+          checkCredentials(data);
+        })
+        .catch((err) => console.log(err));
     } else {
-      closeInput();
-      localStorage.setItem("userName", userName.value);
-      localStorage.setItem("password", password.value);
+      alert("Something went wrong :(");
+    }
+  });
+}
+function checkCredentials(data) {
+  for (let i = 0; i < data.data.length; i++) {
+    if (
+      userName.value == data.data[i].UserName &&
+      password.value == data.data[i].Password
+    ) {
+      logged = true;
+      handleData(data);
+      return;
     }
   }
+  logged = false;
+  if (!logged) updateData(logged);
 }
-function resetPass() {
-  forgotPass.textContent = "Are you sure?";
-  const question = document.createElement("div");
-  question.textContent = "In this way you will lose everything";
-  forgotPass.appendChild(question);
-  const answer1 = document.createElement("button");
-  answer1.textContent = "Yes";
-  answer1.setAttribute("id", "answer1");
-  answer1.addEventListener("click", () => {
-    localStorage.clear();
-    window.location.reload();
-  });
-  forgotPass.appendChild(answer1);
-  const answer2 = document.createElement("button");
-  answer2.textContent = "No";
-  answer2.setAttribute("id", "answer2");
-  answer2.addEventListener("click", () => {
-    window.location.reload();
-  });
-  forgotPass.appendChild(answer2);
-  forgotPass.classList.remove("absolute");
-  registerPopup.style.height = "380px";
-  registerPopup.style.gap = "30px";
+// function resetPass() {
+//   forgotPass.textContent = "Are you sure?";
+//   const question = document.createElement("div");
+//   question.textContent = "In this way you will lose everything";
+//   forgotPass.appendChild(question);
+//   const answer1 = document.createElement("button");
+//   answer1.textContent = "Yes";
+//   answer1.setAttribute("id", "answer1");
+//   answer1.addEventListener("click", () => {
+//     localStorage.clear();
+//     window.location.reload();
+//   });
+//   forgotPass.appendChild(answer1);
+//   const answer2 = document.createElement("button");
+//   answer2.textContent = "No";
+//   answer2.setAttribute("id", "answer2");
+//   answer2.addEventListener("click", () => {
+//     window.location.reload();
+//   });
+//   forgotPass.appendChild(answer2);
+//   forgotPass.classList.remove("absolute");
+//   registerPopup.style.height = "380px";
+//   registerPopup.style.gap = "30px";
+// }
+function subFor() {
+  register();
 }
-function subFor(e) {
-  e.preventDefault();
-  fetch("https://api.apispreadsheets.com/data/IPLF9qDIw7lVDXur/", {
-    method: "POST",
-    body: JSON.stringify({
-      data: { userName: userName.value, Password: password.value },
-    }),
-  }).then((res) => {
-    if (res.status === 201) {
-      // SUCCESS
-    } else {
-      // ERROR
+function updateData(a) {
+  if (!a) {
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        data: {
+          UserName: userName.value,
+          Password: password.value,
+          Books: JSON.stringify(userLibrary),
+        },
+      }),
+    }).then((res) => {
+      if (res.status === 201) {
+        // SUCCESS
+      } else {
+        alert("Something went wrong :(");
+        window.location.reload();
+      }
+    });
+  }
+}
+function handleData(data) {
+  let ult = 0,
+    index = 0;
+  for (let i = 0; i < data.data.length; i++) {
+    if (
+      userName.value == data.data[i].UserName &&
+      password.value == data.data[i].Password
+    ) {
+      index = i;
+      ult = data.data[i].Books.length;
     }
-  });
+  }
+  userLibrary = JSON.parse(data.data[index].Books);
+  for (let i = 0; i < ult - 1; i++) {
+    createBookCard(i);
+  }
 }
-function updateData() {}
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
 cancelBtn.addEventListener("click", closeInput);
-submitBtn.addEventListener("click", register);
-form.addEventListener("submit", subFor);
+submitBtn.addEventListener("click", subFor);
+form.addEventListener("submit", (e) => e.preventDefault());
