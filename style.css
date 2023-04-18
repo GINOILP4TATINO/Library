@@ -5,6 +5,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 #header {
   display: flex;
   padding-left: 300px;
