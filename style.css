@@ -1,3 +1,7 @@
+* {
+  border: 2px solid red;
+}
+
 body {
   min-height: 100vh;
   font-family: Arial, Helvetica, sans-serif;
@@ -214,7 +218,7 @@ a:hover #name {
   display: flex;
   flex-direction: column;
   text-align: center;
-  height: 340px;
+  height: 380px;
   width: 300px;
   align-items: center;
   visibility: hidden;
@@ -273,6 +277,28 @@ a:hover #name {
 }
 #answer2 {
   margin-left: 20px;
+}
+.signBtn {
+  width: 80px;
+  height: 40px;
+  border-radius: 15px;
+  border: 2px solid #3882f6;
+  color: #3882f6;
+  font-size: 17px;
+  cursor: pointer;
+}
+.logSign {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 200px;
+}
+.signBtn.show {
+  color: white;
+  background-color: #3882f6;
+}
+#signUp {
+  margin: -32px;
 }
 @media screen and (max-width: 800px) {
   #header {

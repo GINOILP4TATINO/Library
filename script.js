@@ -16,9 +16,17 @@ const registerText = document.querySelector(".text");
 const userName = document.getElementById("userName");
 const password = document.querySelector(".password");
 const form = document.getElementById("registerForm");
+const logBtn = document.getElementById("first");
+const signBtn = document.getElementById("second");
+const signUp = document.getElementById("signUp");
+const error = document.createElement("div");
+error.classList.add("error");
+registerPopup.appendChild(error);
 
-let logged = true;
+let logged;
+let logging = false;
 let userLibrary = [];
+
 const forgotPass = document.createElement("div");
 forgotPass.classList.add("absolute");
 forgotPass.setAttribute("id", "forgotPass");
@@ -110,24 +118,46 @@ function createBookCard(i) {
   books.appendChild(card);
 }
 function register() {
-  closeInput();
-  if (!document.querySelector(".error")) {
-    const error = document.createElement("div");
-    error.classList.add("error");
-    registerPopup.appendChild(error);
-  }
-  fetch(url).then((res) => {
-    if (res.status === 200) {
-      res
-        .json()
-        .then((data) => {
-          checkCredentials(data);
-        })
-        .catch((err) => console.log(err));
-    } else {
-      alert("Something went wrong :(");
+  if (logging) {
+    fetch(url).then((res) => {
+      if (res.status === 200) {
+        res
+          .json()
+          .then((data) => {
+            checkCredentials(data);
+          })
+          .catch((err) => console.log(err));
+      } else {
+        alert("Something went wrong :(");
+      }
+    });
+    if (!document.querySelector(".error")) {
+      const error = document.createElement("div");
+      error.classList.add("error");
+      registerPopup.appendChild(error);
     }
-  });
+    if (!logged) error.textContent = "Username or Password are wrong";
+  } else if (!logging) {
+    fetch(url).then((res) => {
+      if (res.status === 200) {
+        res
+          .json()
+          .then((data) => {
+            checkName(data);
+          })
+          .catch((err) => console.log(err));
+      } else {
+        alert("Something went wrong :(");
+      }
+    });
+  }
+}
+function endRegister(nameExist) {
+  if (nameExist) error.textContent = "Username already existing";
+  else if (!nameExist) {
+    closeInput();
+    updateData();
+  }
 }
 function checkCredentials(data) {
   for (let i = 0; i < data.data.length; i++) {
@@ -136,12 +166,21 @@ function checkCredentials(data) {
       password.value == data.data[i].Password
     ) {
       logged = true;
+      closeInput();
       handleData(data);
       return;
     }
   }
   logged = false;
-  if (!logged) updateData(logged);
+}
+function checkName(data) {
+  let nameExist = false;
+  for (let i = 0; i < data.data.length; i++) {
+    if (userName.value == data.data[i].UserName) {
+      nameExist = true;
+    }
+  }
+  endRegister(nameExist);
 }
 // function resetPass() {
 //   forgotPass.textContent = "Are you sure?";
@@ -170,26 +209,24 @@ function checkCredentials(data) {
 function subFor() {
   if (userName.value !== "" && password.value !== "") register();
 }
-function updateData(a) {
-  if (!a) {
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify({
-        data: {
-          UserName: userName.value,
-          Password: password.value,
-          Books: JSON.stringify(userLibrary),
-        },
-      }),
-    }).then((res) => {
-      if (res.status === 201) {
-        // SUCCESS
-      } else {
-        alert("Something went wrong :(");
-        window.location.reload();
-      }
-    });
-  }
+function updateData() {
+  fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      data: {
+        UserName: userName.value,
+        Password: password.value,
+        Books: JSON.stringify(userLibrary),
+      },
+    }),
+  }).then((res) => {
+    if (res.status === 201) {
+      // SUCCESS
+    } else {
+      alert("Something went wrong :(");
+      window.location.reload();
+    }
+  });
 }
 function handleData(data) {
   let ult = 0,
@@ -208,8 +245,24 @@ function handleData(data) {
     createBookCard(i);
   }
 }
+function activeLog() {
+  if (logBtn.classList.contains("show")) return;
+  logBtn.classList.add("show");
+  signBtn.classList.remove("show");
+  signUp.textContent = "Log in";
+  logging = true;
+}
+function activeSign() {
+  if (signBtn.classList.contains("show")) return;
+  signBtn.classList.add("show");
+  logBtn.classList.remove("show");
+  signUp.textContent = "Sign up";
+  logging = false;
+}
 addBtn.addEventListener("click", getInput);
 saveBtn.addEventListener("click", endInput);
 cancelBtn.addEventListener("click", closeInput);
 submitBtn.addEventListener("click", subFor);
 form.addEventListener("submit", (e) => e.preventDefault());
+logBtn.addEventListener("click", activeLog);
+signBtn.addEventListener("click", activeSign);
