@@ -23,7 +23,7 @@ const error = document.createElement("div");
 error.classList.add("error");
 registerPopup.appendChild(error);
 
-let logged;
+let logged = true;
 let logging = false;
 let userLibrary = [];
 
@@ -136,7 +136,6 @@ function register() {
       error.classList.add("error");
       registerPopup.appendChild(error);
     }
-    if (!logged) error.textContent = "Username or Password are wrong";
   } else if (!logging) {
     fetch(url).then((res) => {
       if (res.status === 200) {
@@ -160,6 +159,7 @@ function endRegister(nameExist) {
   }
 }
 function checkCredentials(data) {
+  logged = false;
   for (let i = 0; i < data.data.length; i++) {
     if (
       userName.value == data.data[i].UserName &&
@@ -168,10 +168,9 @@ function checkCredentials(data) {
       logged = true;
       closeInput();
       handleData(data);
-      return;
     }
   }
-  logged = false;
+  if (!logged) error.textContent = "Username or Password are wrong";
 }
 function checkName(data) {
   let nameExist = false;
