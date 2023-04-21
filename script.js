@@ -1,5 +1,5 @@
 const url = "https://api.apispreadsheets.com/data/cykJQp2spsJ2WCVu/";
-
+//how to remove a child from a node?
 const overlay = document.getElementById("overlay");
 const books = document.getElementById("books");
 const cancelBtn = document.getElementById("cancelBtn");
@@ -155,6 +155,7 @@ function endRegister(nameExist) {
   if (nameExist) error.textContent = "Username already existing";
   else if (!nameExist) {
     closeInput();
+    form.parentNode.removeChild(form);
     updateData();
   }
 }
@@ -167,6 +168,7 @@ function checkCredentials(data) {
     ) {
       logged = true;
       closeInput();
+      form.parentNode.removeChild(form);
       handleData(data);
     }
   }
