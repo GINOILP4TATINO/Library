@@ -279,16 +279,20 @@ a:hover #name {
   width: 80px;
   height: 40px;
   border-radius: 15px;
-  border: 2px solid #3882f6;
+  outline: 2px solid #3882f6;
   color: #3882f6;
   font-size: 17px;
   cursor: pointer;
+  transition: 150ms;
 }
 .logSign {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 200px;
+}
+.signBtn:hover {
+  outline-offset: 5px;
 }
 .signBtn.show {
   color: white;
