@@ -1,5 +1,5 @@
-const url = "https://api.apispreadsheets.com/data/cykJQp2spsJ2WCVu/";
-//how to remove a child from a node?
+import { url as ApiUrl } from "./keys.js";
+
 const overlay = document.getElementById("overlay");
 const books = document.getElementById("books");
 const cancelBtn = document.getElementById("cancelBtn");
@@ -31,7 +31,6 @@ const forgotPass = document.createElement("div");
 forgotPass.classList.add("absolute");
 forgotPass.setAttribute("id", "forgotPass");
 forgotPass.textContent = ""; //Forgot password?
-// forgotPass.addEventListener("click", resetPass);
 registerPopup.insertBefore(forgotPass, submitBtn);
 
 function BookCreate(name, author, pages, isRead, index) {
@@ -53,8 +52,8 @@ function endInput() {
   );
   userLibrary.push(Book);
   let i = userLibrary.length - 1;
-  updateData(false);
-  createBookCard(i);
+  updateData();
+  createBookCard(userLibrary[i]);
   titleInput.value = "";
   authorInput.value = "";
   pagesInput.value = "";
@@ -65,40 +64,38 @@ function closeInput() {
   inputPopup.classList.remove("show");
   overlay.classList.remove("show");
 }
-function createBookCard(i) {
-  let index = i;
-  let elements = [
-    (title = document.createElement("div")),
-    (author = document.createElement("div")),
-    (pages = document.createElement("div")),
-    (isRead = document.createElement("button")),
-    (remove = document.createElement("button")),
-  ];
-  card = document.createElement("div");
-  card.setAttribute("data-index-number", index);
+function createBookCard(book) {
+  let title = document.createElement("div");
+  let author = document.createElement("div");
+  let pages = document.createElement("div");
+  let isRead = document.createElement("button");
+  let remove = document.createElement("button");
+  let elements = [title, author, pages, isRead, remove];
+  let card = document.createElement("div");
+  card.setAttribute("data-index-number", book.index);
   card.classList.add("card");
-  title.textContent = "'" + userLibrary[index].name + "'";
-  author.textContent = userLibrary[index].author;
-  pages.textContent = userLibrary[index].pages;
+  title.textContent = "'" + book.name + "'";
+  author.textContent = book.author;
+  pages.textContent = book.pages;
   title.classList.add("output");
   author.classList.add("output");
   pages.classList.add("output");
-  isRead.classList.add(userLibrary[index].isRead ? "read" : "notRead");
-  isRead.textContent = userLibrary[index].isRead ? "Read" : "Not read yet";
+  isRead.classList.add(book.isRead ? "read" : "notRead");
+  isRead.textContent = book.isRead ? "Read" : "Not read yet";
   remove.classList.add("remove");
   isRead.addEventListener("click", function () {
     if (this.textContent === "Read") {
       this.textContent = "Not read yet";
       this.classList.add("notRead");
       this.classList.remove("read");
-      userLibrary[index].isRead = false;
-      updateData(false);
+      book.isRead = false;
+      updateData();
     } else {
       this.textContent = "Read";
       this.classList.add("read");
       this.classList.remove("notRead");
-      userLibrary[index].isRead = true;
-      updateData(false);
+      book.isRead = true;
+      updateData();
     }
   });
   remove.textContent = "Remove";
@@ -106,11 +103,9 @@ function createBookCard(i) {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
-    let _index = index;
-    userLibrary.splice(index, 1, null);
-    let newUserLibrary = userLibrary.filter((x) => x != null);
-    userLibrary = newUserLibrary;
-    updateData(false);
+    let _index = book.index;
+    userLibrary.splice(book.index, 1);
+    updateData();
     books.removeChild(
       document.querySelector("[data-index-number='" + _index + "']")
     );
@@ -119,7 +114,7 @@ function createBookCard(i) {
 }
 function register() {
   if (logging) {
-    fetch(url).then((res) => {
+    fetch(ApiUrl).then((res) => {
       if (res.status === 200) {
         res
           .json()
@@ -137,7 +132,7 @@ function register() {
       registerPopup.appendChild(error);
     }
   } else if (!logging) {
-    fetch(url).then((res) => {
+    fetch(ApiUrl).then((res) => {
       if (res.status === 200) {
         res
           .json()
@@ -183,35 +178,11 @@ function checkName(data) {
   }
   endRegister(nameExist);
 }
-// function resetPass() {
-//   forgotPass.textContent = "Are you sure?";
-//   const question = document.createElement("div");
-//   question.textContent = "In this way you will lose everything";
-//   forgotPass.appendChild(question);
-//   const answer1 = document.createElement("button");
-//   answer1.textContent = "Yes";
-//   answer1.setAttribute("id", "answer1");
-//   answer1.addEventListener("click", () => {
-//     localStorage.clear();
-//     window.location.reload();
-//   });
-//   forgotPass.appendChild(answer1);
-//   const answer2 = document.createElement("button");
-//   answer2.textContent = "No";
-//   answer2.setAttribute("id", "answer2");
-//   answer2.addEventListener("click", () => {
-//     window.location.reload();
-//   });
-//   forgotPass.appendChild(answer2);
-//   forgotPass.classList.remove("absolute");
-//   registerPopup.style.height = "380px";
-//   registerPopup.style.gap = "30px";
-// }
 function subFor() {
   if (userName.value !== "" && password.value !== "") register();
 }
 function updateData() {
-  fetch(url, {
+  fetch(ApiUrl, {
     method: "POST",
     body: JSON.stringify({
       data: {
@@ -230,20 +201,16 @@ function updateData() {
   });
 }
 function handleData(data) {
-  let ult = 0,
-    index = 0;
   for (let i = 0; i < data.data.length; i++) {
     if (
       userName.value == data.data[i].UserName &&
       password.value == data.data[i].Password
     ) {
-      index = i;
-      ult = data.data[i].Books.length;
+      userLibrary = JSON.parse(data.data[i].Books);
     }
   }
-  userLibrary = JSON.parse(data.data[index].Books);
-  for (let i = 0; i < ult - 1; i++) {
-    createBookCard(i);
+  for (let book of userLibrary) {
+    createBookCard(book);
   }
 }
 function activeLog() {
