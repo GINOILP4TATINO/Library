@@ -1,4 +1,4 @@
-import { url as ApiUrl } from "./keys.js";
+const ApiUrl = process.env.API_URL;
 
 const overlay = document.getElementById("overlay");
 const books = document.getElementById("books");
