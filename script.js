@@ -1,4 +1,8 @@
-const ApiUrl = process.env.API_URL;
+//TODO:
+//Add encryption for user data
+const ApiUrl =
+  "https://script.google.com/macros/s/AKfycby1GnO8jifLaTR6BcQYkQs5h_DgsjDzLRoeGbGT4UUkpCTCpw2pWvW4LJZlil5ZMD5uTQ/exec";
+const ApiKey = "https://api.apispreadsheets.com/data/cykJQp2spsJ2WCVu/";
 
 const overlay = document.getElementById("overlay");
 const books = document.getElementById("books");
@@ -103,49 +107,56 @@ function createBookCard(book) {
     card.appendChild(element);
   }
   remove.addEventListener("click", () => {
-    let _index = book.index;
     userLibrary.splice(book.index, 1);
+    for (let i = book.index; i < userLibrary.length; i++) {
+      userLibrary[i].index--;
+    }
     updateData();
     books.removeChild(
-      document.querySelector("[data-index-number='" + _index + "']")
+      document.querySelector("[data-index-number='" + book.index + "']")
     );
   });
   books.appendChild(card);
 }
 function register() {
-  if (logging) {
-    fetch(ApiUrl).then((res) => {
-      if (res.status === 200) {
-        res
-          .json()
-          .then((data) => {
-            checkCredentials(data);
-          })
-          .catch((err) => console.log(err));
-      } else {
-        alert("Something went wrong :(");
-      }
-    });
-    if (!document.querySelector(".error")) {
-      const error = document.createElement("div");
-      error.classList.add("error");
-      registerPopup.appendChild(error);
-    }
-  } else if (!logging) {
-    fetch(ApiUrl).then((res) => {
-      if (res.status === 200) {
-        res
-          .json()
-          .then((data) => {
+  let data;
+  fetch(ApiKey, {
+    method: "POST",
+    body: JSON.stringify({
+      data: {
+        UserName: userName.value,
+        Password: password.value,
+        Books: "request",
+      },
+    }),
+  }).then(() =>
+    setTimeout(
+      fetch(ApiUrl).then((d) => {
+        d.json().then((d) => {
+          data = d;
+          console.log(data);
+          if (logging) {
+            if (data.data !== "null") {
+              handleData(data);
+              closeInput();
+            } else if (data.data === "null") {
+              if (!document.querySelector(".error")) {
+                const error = document.createElement("div");
+                error.classList.add("error");
+                registerPopup.appendChild(error);
+              }
+              error.textContent = "Username or Password are wrong";
+            }
+          } else if (!logging) {
             checkName(data);
-          })
-          .catch((err) => console.log(err));
-      } else {
-        alert("Something went wrong :(");
-      }
-    });
-  }
+          }
+        });
+      }),
+      200
+    )
+  );
 }
+
 function endRegister(nameExist) {
   if (nameExist) error.textContent = "Username already existing";
   else if (!nameExist) {
@@ -154,21 +165,21 @@ function endRegister(nameExist) {
     updateData();
   }
 }
-function checkCredentials(data) {
-  logged = false;
-  for (let i = 0; i < data.data.length; i++) {
-    if (
-      userName.value == data.data[i].UserName &&
-      password.value == data.data[i].Password
-    ) {
-      logged = true;
-      closeInput();
-      form.parentNode.removeChild(form);
-      handleData(data);
-    }
-  }
-  if (!logged) error.textContent = "Username or Password are wrong";
-}
+// function checkCredentials(data) {
+//   logged = false;
+//   for (let i = 0; i < data.data.length; i++) {
+//     if (
+//       userName.value == data.data[i].UserName &&
+//       password.value == data.data[i].Password
+//     ) {
+//       logged = true;
+//       closeInput();
+//       form.parentNode.removeChild(form);
+//       handleData(data);
+//     }
+//   }
+//   if (!logged) error.textContent = "Username or Password are wrong";
+// }
 function checkName(data) {
   let nameExist = false;
   for (let i = 0; i < data.data.length; i++) {
@@ -182,7 +193,7 @@ function subFor() {
   if (userName.value !== "" && password.value !== "") register();
 }
 function updateData() {
-  fetch(ApiUrl, {
+  fetch(ApiKey, {
     method: "POST",
     body: JSON.stringify({
       data: {
@@ -201,14 +212,7 @@ function updateData() {
   });
 }
 function handleData(data) {
-  for (let i = 0; i < data.data.length; i++) {
-    if (
-      userName.value == data.data[i].UserName &&
-      password.value == data.data[i].Password
-    ) {
-      userLibrary = JSON.parse(data.data[i].Books);
-    }
-  }
+  userLibrary = JSON.parse(data.data.Books);
   for (let book of userLibrary) {
     createBookCard(book);
   }
